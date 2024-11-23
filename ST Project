@@ -1,0 +1,53 @@
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, classification_report
+import pandas as pd
+
+class SpamDetection:
+    def __init__(self, data_path):
+        # Initialize the class with the path to the dataset
+        self.data_path = data_path
+
+    def load_data(self):
+        """Load dataset from a specified path."""
+        # Read the CSV file into a pandas DataFrame and return it
+        return pd.read_csv(self.data_path)
+
+    def preprocess(self, data):
+        """Preprocess data by separating features and target."""
+        # Use all columns except 'spam' as features (X)
+        X = data.drop(columns=['spam'])
+        # The 'spam' column is the target variable (y)
+        y = data['spam']
+        # Split the data into training and testing sets (70% train, 30% test)
+        return train_test_split(X, y, test_size=0.3, random_state=42)
+
+    def train_model(self, X_train, y_train):
+        """Train the Random Forest model."""
+        # Initialize the Random Forest classifier with 100 trees
+        rf_classifier = RandomForestClassifier(n_estimators=100, random_state=42)
+        # Fit the model to the training data
+        rf_classifier.fit(X_train, y_train)
+        # Return the trained model
+        return rf_classifier
+
+    def evaluate_model(self, model, X_test, y_test):
+        """Evaluate model performance and print results."""
+        # Make predictions on the test set
+        y_pred = model.predict(X_test)
+        # Calculate and print the accuracy of the model
+        print("Accuracy:", accuracy_score(y_test, y_pred))
+        # Print a detailed classification report (precision, recall, f1-score)
+        print(classification_report(y_test, y_pred))
+
+# Implementation
+# Create an instance of the SpamDetection class with the specified data path
+spam_detector = SpamDetection(data_path='spambase.csv')
+# Load the dataset
+data = spam_detector.load_data()
+# Preprocess the data and split it into training and testing sets
+X_train, X_test, y_train, y_test = spam_detector.preprocess(data)
+# Train the Random Forest model using the training data
+model = spam_detector.train_model(X_train, y_train)
+# Evaluate the trained model using the test data
+spam_detector.evaluate_model(model, X_test, y_test)
